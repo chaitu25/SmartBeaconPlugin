@@ -1,0 +1,25 @@
+{
+  "name": "com.tcd.iot.smartbeacon",
+  "version": "0.0.1",
+  "description": "Custom plugin for scannig iBeacons",
+  "cordova": {
+    "id": "com.tcd.iot.smartbeacon",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chaitu25/SmartBeaconPlugin.git"
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "Chaitu25",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chaitu25/SmartBeaconPlugin/issues"
+  },
+  "homepage": "https://github.com/chaitu25/SmartBeaconPlugin#readme"
+}

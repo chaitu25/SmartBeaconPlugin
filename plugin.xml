@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android" id="com.tcd.iot.smartbeacon" version="0.0.1">
+   <name>SmartBeaconPlugin</name>
+   <js-module name="SmartBeaconPlugin" src="www/SmartBeaconPlugin.js">
+      <clobbers target="cordova.plugins.SmartBeaconPlugin" />
+   </js-module>
+   <platform name="android">
+      <config-file parent="/*" target="res/xml/config.xml">
+         <feature name="SmartBeaconPlugin">
+            <param name="android-package" value="com.tcd.iot.smartbeacon.SmartBeaconPlugin" />
+         </feature>
+      </config-file>
+      <config-file parent="/*" target="AndroidManifest.xml">
+        <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+        <uses-permission android:name="android.permission.INTERNET"/>
+        <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+      </config-file>
+      <source-file src="src/android/SmartBeaconPlugin.java" target-dir="src/com/tcd/iot/smartbeacon/SmartBeaconPlugin" />
+      <framework src="org.altbeacon:android-beacon-library:2+" />
+   </platform>
+</plugin>
