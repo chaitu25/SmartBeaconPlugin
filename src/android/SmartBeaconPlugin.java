@@ -61,27 +61,29 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
         }
     }
 
-
     private HashMap<String, SmartBeacon> beaconsMap = new HashMap<String, SmartBeacon>();
 
     @Override
-    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
-        super.initialize(cordova, webView);
-        Context context = cordova.getActivity().getApplicationContext();
-        if(BeaconManager.getInstanceForApplication(context).checkAvailability()){
-            cordova.requestPermission(this, 1, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-            cordova.requestPermission(this, 2, Manifest.permission.ACCESS_FINE_LOCATION);
-            BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
-            beaconManager = BeaconManager.getInstanceForApplication(context);
-            beaconManager.getBeaconParsers().add(new BeaconParser().
-                    setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
-            beaconManager.addMonitorNotifier(this);
-            beaconManager.startMonitoring(wildcardRegion);
+    protected void pluginInitialize() {
+            Context context = cordova.getActivity().getApplicationContext();
+            Log.i(TAG, "Beginning plugin initialization phase ");
+            if(BeaconManager.getInstanceForApplication(context).checkAvailability()){
+                cordova.requestPermission(this, 1, Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+                cordova.requestPermission(this, 2, Manifest.permission.ACCESS_FINE_LOCATION);
+                Log.i(TAG, "Beginning Scanning of beacons");
+                BeaconManager.setRssiFilterImplClass(ArmaRssiFilter.class);
+                beaconManager = BeaconManager.getInstanceForApplication(context);
+                beaconManager.getBeaconParsers().add(new BeaconParser().
+                        setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
+                beaconManager.addMonitorNotifier(this);
+                beaconManager.startMonitoring(wildcardRegion);
+            }
         }
-    }
+
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("scan")) {
+            Log.i(TAG, "In execute method of custom plugin" );
             JSONObject options = args.getJSONObject(0);
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, toJSONArray(beaconsMap));
             callbackContext.sendPluginResult(pluginResult);
@@ -92,6 +94,7 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
         }
         return true;
     }
+
 
     @Override
     public void onPause(boolean multitasking) {
@@ -104,10 +107,11 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
     }
     @Override
     public void didEnterRegion(Region region) {
-        sendNotification();
+        this.sendNotification();
     }
 
     private void sendNotification() {
+        Log.d(TAG, "Calculating distance from beacons");
         RangeNotifier rangeNotifier = (beacons, region) -> {
             if (beacons.size() > 0) {
                 for(Beacon beacon:beacons){
