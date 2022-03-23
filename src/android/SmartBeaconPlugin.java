@@ -84,7 +84,7 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if (action.equals("scan")) {
             Log.i(TAG, "In execute method of custom plugin" );
-            JSONObject options = args.getJSONObject(0);
+            //JSONObject options = args.getJSONObject(0);
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, toJSONArray(beaconsMap));
             callbackContext.sendPluginResult(pluginResult);
         }
@@ -115,18 +115,17 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
         RangeNotifier rangeNotifier = (beacons, region) -> {
             if (beacons.size() > 0) {
                 for(Beacon beacon:beacons){
+                    SmartBeacon smartBeacon = new SmartBeacon();
+                    smartBeacon.distance = beacon.getDistance();
+                    smartBeacon.uuid = beacon.getId1().toString();
 
-                    SmartBeacon beacon1 = new SmartBeacon();
-                    beacon1.distance = beacon.getDistance();
-                    beacon1.uuid = beacon.getId1().toString();
-
-                    beacon1.major = beacon.getId2().toString();
-                    beacon1.minor = beacon.getId3().toString();
-                    Log.d(TAG, "I see a beacon with an url: " + beacon1.minor +
+                    smartBeacon.major = beacon.getId2().toString();
+                    smartBeacon.minor = beacon.getId3().toString();
+                    Log.d(TAG, "I see a beacon with an url: " + smartBeacon.minor +
                             " at " + beacon.getDistance() + " meters away.");
-                    beacon1.rssi = beacon.getRssi();
-                    beacon1.txPower = beacon.getTxPower();
-                    beaconsMap.put(beacon1.uuid+beacon1.major+beacon1.minor,beacon1);
+                    smartBeacon.rssi = beacon.getRssi();
+                    smartBeacon.txPower = beacon.getTxPower();
+                    this.beaconsMap.put(smartBeacon.minor,smartBeacon);
                 }
                 //logToDisplay("The first beacon " + firstBeacon.toString() + " is about " + firstBeacon.getDistance() + " meters away.");
             }
