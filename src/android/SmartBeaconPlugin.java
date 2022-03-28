@@ -62,6 +62,7 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
     }
 
     private HashMap<String, SmartBeacon> beaconsMap = new HashMap<String, SmartBeacon>();
+    private CallbackContext callbackContext;
 
     @Override
     protected void pluginInitialize() {
@@ -76,16 +77,18 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
                 beaconManager.getBeaconParsers().add(new BeaconParser().
                         setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24"));
                 beaconManager.addMonitorNotifier(this);
-                beaconManager.startMonitoring(wildcardRegion);
             }
         }
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        Log.i(TAG, "In execute method of custom beacon plugin" );
         if (action.equals("scan")) {
             Log.i(TAG, "In execute method of custom plugin" );
-            //JSONObject options = args.getJSONObject(0);
-            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, toJSONArray(beaconsMap));
+            this.beaconManager.startMonitoring(wildcardRegion);
+            this.callbackContext = callbackContext;
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.NO_RESULT);
+            pluginResult.setKeepCallback(true);
             callbackContext.sendPluginResult(pluginResult);
         }
         else
@@ -114,11 +117,12 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
         Log.d(TAG, "Calculating distance from beacons");
         RangeNotifier rangeNotifier = (beacons, region) -> {
             if (beacons.size() > 0) {
+                if(!beaconsMap.isEmpty())
+                    beaconsMap.clear();
                 for(Beacon beacon:beacons){
                     SmartBeacon smartBeacon = new SmartBeacon();
                     smartBeacon.distance = beacon.getDistance();
                     smartBeacon.uuid = beacon.getId1().toString();
-
                     smartBeacon.major = beacon.getId2().toString();
                     smartBeacon.minor = beacon.getId3().toString();
                     Log.d(TAG, "I see a beacon with an url: " + smartBeacon.minor +
@@ -127,6 +131,10 @@ public class SmartBeaconPlugin extends CordovaPlugin implements MonitorNotifier 
                     smartBeacon.txPower = beacon.getTxPower();
                     this.beaconsMap.put(smartBeacon.minor,smartBeacon);
                 }
+                Log.d(TAG, "Sending beacon results");
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, toJSONArray(beaconsMap));
+                pluginResult.setKeepCallback(true);
+                this.callbackContext.sendPluginResult(pluginResult);
                 //logToDisplay("The first beacon " + firstBeacon.toString() + " is about " + firstBeacon.getDistance() + " meters away.");
             }
         };
