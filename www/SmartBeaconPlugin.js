@@ -1,5 +1,7 @@
 var exec = require('cordova/exec');
 
-exports.scan = function (arg0, success, error) {
-    exec(success, error, 'SmartBeaconPlugin', 'scan', [arg0]);
+exports.scan = function (success, error) {
+    var options = {};
+    console.log('plugin java script')
+    exec(success, error, 'SmartBeaconPlugin', 'scan', [options]);
 };
